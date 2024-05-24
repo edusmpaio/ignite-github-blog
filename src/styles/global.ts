@@ -13,7 +13,7 @@ export const GlobalStyle = createGlobalStyle`
   }
 
   body, input, button, textarea {
-    font-family: 'Nunito', sans-serif;
+    font-family: "Nunito Sans", sans-serif;
     line-height: 160%;
   }
 `
