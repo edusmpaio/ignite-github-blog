@@ -1,39 +1,64 @@
+import { useEffect, useState } from 'react'
+import axios from 'axios'
+
 import { ArrowSquareOut, GithubLogo, Users } from '@phosphor-icons/react'
 import { ProfileContainer, ProfileContent, ProfileHeader } from './styles'
 
+interface GithubUserType {
+  name: string
+  login: string
+  avatarUrl: string
+  bio: string
+  followers: number
+  htmlUrl: string
+}
+
 export function Profile() {
+  const [githubUser, setGithubUser] = useState<GithubUserType | null>(null)
+
+  async function fetchGithubUserData() {
+    const response = await axios.get('https://api.github.com/users/edusmpaio')
+
+    const { name, login, avatar_url, bio, followers, html_url } = response.data
+
+    setGithubUser({
+      name,
+      login,
+      avatarUrl: avatar_url,
+      bio,
+      followers,
+      htmlUrl: html_url,
+    })
+  }
+
+  useEffect(() => {
+    fetchGithubUserData()
+  }, [])
+
   return (
     <ProfileContainer>
-      <img src="https://github.com/edusmpaio.png" alt="" />
+      <img src={githubUser?.avatarUrl} alt="" />
 
       <div>
         <ProfileHeader>
-          <strong>Cameron Williamson</strong>
-          <a
-            href="https://github.com/edusmpaio"
-            target="_blank"
-            rel="noreferrer"
-          >
+          <strong>{githubUser?.name}</strong>
+          <a href={githubUser?.htmlUrl} target="_blank" rel="noreferrer">
             <span>github</span>
             <ArrowSquareOut size={16} weight="bold" />
           </a>
         </ProfileHeader>
 
         <ProfileContent>
-          <p>
-            Tristique volutpat pulvinar vel massa, pellentesque egestas. Eu
-            viverra massa quam dignissim aenean malesuada suscipit. Nunc,
-            volutpat pulvinar vel mass.
-          </p>
+          <p>{githubUser?.bio}</p>
 
           <div>
             <span>
               <GithubLogo size={20} />
-              cameronwll
+              {githubUser?.login}
             </span>
             <span>
               <Users size={20} weight="fill" />
-              32 seguidores
+              {githubUser?.followers} seguidores
             </span>
           </div>
         </ProfileContent>
