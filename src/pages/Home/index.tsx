@@ -1,3 +1,6 @@
+import { useEffect, useState } from 'react'
+import { searchApi } from '../../lib/axios'
+
 import { Profile } from './components/Profile'
 import {
   HomeContainer,
@@ -6,8 +9,64 @@ import {
   PostCards,
   SearchInput,
 } from './styles'
+import { formatDistanceToNow } from '../../lib/dayjs'
+
+interface IssueResponse {
+  id: number
+  number: number
+  title: string
+  user: {
+    login: string
+  }
+  body: string
+  created_at: string
+}
+
+interface Issue {
+  id: number
+  number: number
+  title: string
+  user: {
+    login: string
+  }
+  body: string
+  createdAt: string
+}
 
 export function Home() {
+  const [issues, setIssues] = useState<Issue[]>([])
+
+  async function fetchIssues(query?: string) {
+    const search = query || ''
+
+    const response = await searchApi.get('/issues', {
+      params: {
+        q: `${search} repo:edusmpaio/ignite-github-blog`,
+      },
+    })
+
+    const fetchedIssues = response.data.items.map(
+      ({ id, number, title, user, body, created_at }: IssueResponse) => {
+        return {
+          id,
+          number,
+          title,
+          user: {
+            login: user.login,
+          },
+          body,
+          createdAt: created_at,
+        }
+      },
+    )
+
+    setIssues(fetchedIssues)
+  }
+
+  useEffect(() => {
+    fetchIssues()
+  }, [])
+
   return (
     <>
       <Profile />
@@ -16,7 +75,7 @@ export function Home() {
         <HomeHeader>
           <div>
             <strong>Publicações</strong>
-            <span>6 publicações</span>
+            <span>{issues.length} publicações</span>
           </div>
 
           <form>
@@ -25,18 +84,13 @@ export function Home() {
         </HomeHeader>
 
         <PostCards>
-          {Array.from({ length: 6 }).map((_, i) => (
-            <PostCard to={`/post/${i + 1}`} key={i}>
+          {issues.map((issue) => (
+            <PostCard to={`/post/${issue.number}`} key={issue.id}>
               <div>
-                <strong>JavaScript data types and data structures</strong>
-                <span>Há 1 dia</span>
+                <strong>{issue.title}</strong>
+                <span>{formatDistanceToNow(issue.createdAt)}</span>
               </div>
-              <p>
-                Programming languages all have built-in data structures, but
-                these often differ from one language to another. This article
-                attempts to list the built-in data structures available in
-                JavaScript and what properties they have.
-              </p>
+              <p>{issue.body}</p>
             </PostCard>
           ))}
         </PostCards>
