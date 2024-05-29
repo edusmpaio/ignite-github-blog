@@ -15,9 +15,6 @@ interface IssueResponse {
   id: number
   number: number
   title: string
-  user: {
-    login: string
-  }
   body: string
   created_at: string
 }
@@ -26,9 +23,6 @@ interface Issue {
   id: number
   number: number
   title: string
-  user: {
-    login: string
-  }
   body: string
   createdAt: string
 }
@@ -46,14 +40,11 @@ export function Home() {
     })
 
     const fetchedIssues = response.data.items.map(
-      ({ id, number, title, user, body, created_at }: IssueResponse) => {
+      ({ id, number, title, body, created_at }: IssueResponse) => {
         return {
           id,
           number,
           title,
-          user: {
-            login: user.login,
-          },
           body,
           createdAt: created_at,
         }
