@@ -58,4 +58,19 @@ export const PostInfosFooter = styled.div`
 
 export const PostContent = styled.div`
   padding: 2.5rem 2rem;
+
+  p {
+    margin-bottom: 1.5rem;
+  }
+
+  h3 {
+    margin-bottom: 1rem;
+  }
+
+  ul {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    margin-bottom: 1rem;
+  }
 `
