@@ -1,5 +1,6 @@
-import { useEffect, useState } from 'react'
+import { ChangeEvent, useEffect, useState } from 'react'
 import { searchApi } from '../../lib/axios'
+import { formatDistanceToNow } from '../../lib/dayjs'
 
 import { Profile } from './components/Profile'
 import {
@@ -9,7 +10,7 @@ import {
   PostCards,
   SearchInput,
 } from './styles'
-import { formatDistanceToNow } from '../../lib/dayjs'
+import { useDebounceValue } from '../../hooks/useDebounceValue'
 
 interface IssueResponse {
   id: number
@@ -29,13 +30,18 @@ interface Issue {
 
 export function Home() {
   const [issues, setIssues] = useState<Issue[]>([])
+  const [filter, setFilter] = useState('')
+
+  const debouncedFilter = useDebounceValue(filter, 800)
+
+  function handleSearch(event: ChangeEvent<HTMLInputElement>) {
+    setFilter(event.target.value.trim())
+  }
 
   async function fetchIssues(query?: string) {
-    const search = query || ''
-
     const response = await searchApi.get('/issues', {
       params: {
-        q: `${search} repo:edusmpaio/ignite-github-blog`,
+        q: `${query} repo:edusmpaio/ignite-github-blog`,
       },
     })
 
@@ -55,8 +61,8 @@ export function Home() {
   }
 
   useEffect(() => {
-    fetchIssues()
-  }, [])
+    fetchIssues(debouncedFilter)
+  }, [debouncedFilter])
 
   return (
     <>
@@ -69,9 +75,12 @@ export function Home() {
             <span>{issues.length} publicações</span>
           </div>
 
-          <form>
-            <SearchInput type="text" placeholder="Buscar conteúdo" />
-          </form>
+          <SearchInput
+            type="text"
+            placeholder="Buscar conteúdo"
+            onChange={handleSearch}
+            value={filter}
+          />
         </HomeHeader>
 
         <PostCards>
